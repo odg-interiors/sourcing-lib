@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ODG Sourcing Library</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8E8E8;
+    --paper-deep:#DCDCDC;
+    --card:#FFFFFF;
+    --ink:#141414;
+    --ink-soft:#6E6E6E;
+    --hairline:#CBCBCB;
+    --red:#D6291B;
+    --blue:#0070C0;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Archivo', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:40px 28px 70px;
+  }
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:20px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:'Archivo Expanded', sans-serif;
+    font-weight:600;
+    font-size:11px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+  }
+  h1{
+    font-family:'Archivo Expanded', sans-serif;
+    font-weight:600;
+    font-size:34px;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    margin:0;
+  }
+  .top-right{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .search-wrap{
+    position:relative;
+  }
+  .search-wrap input{
+    font-family:'Archivo', sans-serif;
+    font-size:13px;
+    letter-spacing:0.02em;
+    padding:11px 14px 11px 32px;
+    width:260px;
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius);
+    background:var(--card);
+    color:var(--ink);
+  }
+  .search-wrap input:focus{ outline:2px solid var(--blue); outline-offset:1px; }
+  .search-wrap::before{
+    content:"⌕";
+    position:absolute;
+    left:11px; top:50%; transform:translateY(-50%);
+    font-size:15px;
+    color:var(--ink-soft);
+  }
+  button{
+    font-family:'Archivo', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--paper);
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius);
+    padding:11px 18px;
+  }
+  .btn-primary:hover{ background:#000; }
+  .btn-ghost{
+    background:transparent;
+    border:1.5px solid var(--hairline);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:10px 15px;
+  }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .layout{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    gap:30px;
+    align-items:start;
+  }
+  @media (max-width:800px){ .layout{ grid-template-columns:1fr; } }
+
+  .drawer{ position:sticky; top:16px; }
+  .drawer-section-label{
+    font-family:'Archivo Expanded', sans-serif;
+    font-weight:600;
+    font-size:10px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:20px 0 8px;
+    padding-left:4px;
+  }
+  .drawer-section-label:first-child{ margin-top:0; }
+  .group-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+    user-select:none;
+  }
+  .group-header:hover{ color:var(--ink); }
+  .group-header .chevron{
+    display:inline-block;
+    transition:transform 0.15s ease;
+    font-size:9px;
+  }
+  .group-header.expanded .chevron{ transform:rotate(90deg); }
+  .tab-list{ list-style:none; margin:0; padding:0; }
+  .tab{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:baseline;
+    padding:8px 10px;
+    margin-bottom:1px;
+    border-left:2px solid transparent;
+    cursor:pointer;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    transition:background .12s, color .12s, border-color .12s;
+  }
+  .tab:hover{ background:rgba(0,0,0,0.045); color:var(--ink); }
+  .tab.selected{
+    background:var(--card);
+    border-left-color:var(--ink);
+    color:var(--ink);
+    font-weight:600;
+  }
+  .tab .count{
+    font-family:'Archivo', sans-serif;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    background:rgba(0,0,0,0.07);
+    padding:1px 7px;
+    border-radius:8px;
+  }
+  .tab.selected .count{ background:var(--ink); color:var(--paper); }
+  .tab.pending .count{ background:var(--red); color:#fff; }
+
+  .tab.sub-with-tiers:before{ content:none; }
+  .tab.sub-with-tiers{ padding-left:12px; }
+  .tab.tiertab{ padding-left:24px; font-size:11px; }
+  .tab.tiertab:before{ left:11px; }
+  .tab.sub-with-tiers .chevron.small{ display:inline-block; font-size:8px; transition:transform 0.15s ease; margin-right:2px; }
+  .tab.sub-with-tiers.expanded .chevron.small{ transform:rotate(90deg); }
+  .tab.cat-with-subs .chevron.small{
+    display:inline-block;
+    font-size:8px;
+    transition:transform 0.15s ease;
+    margin-right:2px;
+  }
+  .tab.cat-with-subs.expanded .chevron.small{ transform:rotate(90deg); }
+  .subtab-list{ margin-left:14px; }
+  .tab.subtab{
+    position:relative;
+    font-size:11.5px;
+    padding:6px 10px 6px 24px;
+    color:var(--ink-soft);
+  }
+  /* the dash is positioned, not a flex item, so it can't push the label toward the middle */
+  .tab.subtab:before{ content:'–'; position:absolute; left:11px; opacity:0.5; }
+
+  /* everything in the sidebar reads from the left; only the count sits on the right */
+  .drawer, .drawer *{ text-align:left; }
+  .tab > span:first-child{ flex:1; min-width:0; }
+
+  .panel-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:16px; flex-wrap:wrap; gap:8px;
+    border-bottom:1px solid var(--hairline);
+    padding-bottom:12px;
+  }
+  .panel-title{
+    font-family:'Archivo Expanded', sans-serif;
+    font-weight:600;
+    font-size:19px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  .panel-sub{
+    font-family:'Archivo', sans-serif;
+    font-size:11.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:12px;
+  }
+  .tier-block{ margin:0 0 16px; }
+  .tier-heading{
+    font-family:'Archivo', sans-serif;
+    font-weight:600;
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:4px 0 8px;
+  }
+  .subcat-block{ margin-bottom:22px; }
+  .subcat-block:last-child{ margin-bottom:0; }
+  .subcat-heading{
+    font-family:'Archivo Expanded', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin:0 0 10px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:15px 15px 13px;
+    position:relative;
+    transition:box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .card:hover{ box-shadow:0 3px 10px rgba(0,0,0,0.08); transform:translateY(-1px); border-color:var(--ink); }
+  .card .cat-tag{
+    font-family:'Archivo', sans-serif;
+    font-size:9px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    float:right;
+    margin-left:8px;
+  }
+  .card a.name{
+    font-family:'Archivo', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    color:var(--ink);
+    text-decoration:none;
+    display:block;
+    margin-bottom:7px;
+    line-height:1.3;
+  }
+  .card a.name:hover{ text-decoration:underline; }
+  .card .name{ padding-right:26px; }
+  .card .cat-tag{ margin-right:28px; }
+  .card .edit-btn{
+    position:absolute; top:8px; right:8px;
+    width:24px; height:24px; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--hairline); background:var(--card); color:var(--ink-soft);
+    border-radius:50%; font-size:12px; line-height:1; cursor:pointer; opacity:.55;
+  }
+  .card:hover .edit-btn, .card .edit-btn:focus{ opacity:1; color:var(--ink); border-color:var(--ink); }
+  .check-row{
+    display:flex; gap:8px; align-items:flex-start;
+    font-family:'Archivo', sans-serif; font-size:12px; color:var(--ink-soft);
+    margin:2px 0 14px; line-height:1.4;
+  }
+  .check-row input{ margin-top:2px; }
+  .panel-note{
+    font-family:'Archivo', sans-serif;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--ink-soft);
+    background:rgba(0,0,0,0.04);
+    border-left:3px solid #C8962E;
+    border-radius:3px;
+    padding:9px 12px;
+    margin:0 0 16px;
+    max-width:760px;
+  }
+  .panel-note strong{ color:var(--ink); }
+  .ohara-star{ color:#C8962E; margin-right:5px; font-size:0.95em; }
+  .cat-chips{ display:flex; flex-wrap:wrap; gap:4px; margin:2px 0 9px; }
+  .cat-chips .chip.chip-link{
+    border:0; cursor:pointer; font-family:'Archivo', sans-serif;
+    transition:background .12s, color .12s;
+  }
+  .cat-chips .chip.chip-link:hover, .cat-chips .chip.chip-link:focus{
+    background:var(--ink); color:var(--paper); outline:none;
+  }
+  .card.flash{ border-color:#C8962E; box-shadow:0 0 0 2px #C8962E, 0 6px 18px rgba(200,150,46,0.35); }
+  .cat-chips .chip{
+    font-family:'Archivo', sans-serif;
+    font-size:9px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:rgba(0,0,0,0.06);
+    padding:2px 7px;
+    border-radius:8px;
+  }
+  .card .url{
+    font-family:'Archivo', sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    word-break:break-all;
+    display:block;
+    margin-bottom:9px;
+  }
+  .card .visit{
+    font-family:'Archivo', sans-serif;
+    font-weight:600;
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink);
+    text-decoration:none;
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:1px;
+  }
+  .card .visit:hover{ color:var(--blue); border-color:var(--blue); }
+  .empty{
+    font-family:'Archivo', sans-serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    border:1px dashed var(--hairline);
+    border-radius:var(--radius);
+    padding:30px;
+    text-align:center;
+    letter-spacing:0.02em;
+  }
+
+  .pending-row{
+    background:var(--card);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:13px 15px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    border-left:3px solid var(--red);
+  }
+  .pending-info{ min-width:200px; flex:1; }
+  .pending-info .n{ font-family:'Archivo', sans-serif; font-weight:600; font-size:14px; }
+  .pending-info .u{ font-family:'Archivo', sans-serif; font-size:10.5px; color:var(--ink-soft); word-break:break-all; }
+  .pending-info .meta{ font-family:'Archivo', sans-serif; font-size:10px; letter-spacing:0.04em; text-transform:uppercase; color:var(--red); margin-top:3px; }
+  .pending-actions{ display:flex; gap:6px; align-items:center; }
+  select{
+    font-family:'Archivo', sans-serif;
+    font-size:12px;
+    padding:8px 9px;
+    border:1.5px solid var(--hairline);
+    border-radius:var(--radius);
+    background:#fff;
+  }
+  .file-btn{ background:var(--ink); color:var(--paper); border:1.5px solid var(--ink); border-radius:var(--radius); padding:8px 13px; }
+  .file-btn:hover{ background:#000; }
+  .discard-btn{ background:transparent; color:var(--red); border:1.5px solid var(--red); border-radius:var(--radius); padding:8px 11px; }
+  .discard-btn:hover{ background:var(--red); color:#fff; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(20,20,20,0.5);
+    display:flex; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .modal{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:2px;
+    width:100%; max-width:420px;
+    padding:24px 24px 20px;
+  }
+  .modal h2{
+    font-family:'Archivo Expanded', sans-serif; font-weight:600; font-size:18px;
+    letter-spacing:0.05em; text-transform:uppercase; margin:0 0 6px;
+  }
+  .modal .hint{ font-family:'Archivo', sans-serif; font-size:11.5px; color:var(--ink-soft); margin-bottom:18px; }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-family:'Archivo', sans-serif; font-size:10.5px;
+    font-weight:600;
+    text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft); margin-bottom:5px;
+  }
+  .field input, .field select{
+    width:100%; padding:10px 11px; border:1.5px solid var(--hairline); border-radius:var(--radius);
+    font-family:'Archivo', sans-serif; font-size:13.5px; background:#fff;
+  }
+  .field input:focus, .field select:focus{ outline:2px solid var(--blue); outline-offset:1px; border-color:var(--blue); }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--paper); padding:11px 20px;
+    border-radius:var(--radius); font-family:'Archivo', sans-serif; font-weight:600;
+    font-size:12px; letter-spacing:0.04em; text-transform:uppercase;
+    z-index:60;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+  .loading{ font-family:'Archivo', sans-serif; font-size:13px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:40px; text-align:center; }
+  .note{
+    font-family:'Archivo', sans-serif; font-size:10.5px; letter-spacing:0.01em; color:var(--ink-soft);
+    border-top:1px solid var(--hairline); margin-top:32px; padding-top:14px;
+  }
+  .footer-sig{
+    text-align:center;
+    font-family:'Archivo', sans-serif;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--hairline);
+  }
+
+  /* ---- sign-in screen ---- */
+  #login{ display:none; }
+  body.locked #login{ display:flex; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
+  body.locked #app, body.locked #toast{ display:none; }
+  .login-card{
+    width:100%; max-width:380px; background:var(--card);
+    border:1px solid var(--hairline); border-radius:6px; padding:32px 28px;
+  }
+  .login-card h1{ margin:2px 0 22px; }
+  .login-card .field{ margin:0 0 14px; }
+  .login-card label{
+    display:block; margin-bottom:5px;
+    font-family:'Archivo', sans-serif; font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--ink-soft);
+  }
+  .login-card input{
+    width:100%; box-sizing:border-box; padding:10px 12px;
+    font-family:'Archivo', sans-serif; font-size:14px; color:var(--ink);
+    background:#fff; border:1px solid var(--hairline); border-radius:4px;
+  }
+  .login-card input:focus{ outline:none; border-color:var(--ink); }
+  .login-error{ min-height:18px; margin:0 0 12px; font-family:'Archivo', sans-serif; font-size:12.5px; color:var(--red); }
+  .login-card .btn-primary{ width:100%; }
+  .top-right .btn-ghost{ margin-left:8px; }
+  .import-wrap{ display:flex; min-height:80vh; align-items:center; justify-content:center; padding:24px; }
+  .import-card{ max-width:460px; }
+  .import-text{ font-family:'Archivo', sans-serif; font-size:13.5px; line-height:1.5; color:var(--ink-soft); margin:0 0 16px; }
+  .import-card input[type=file]{ padding:8px; font-size:13px; margin-bottom:12px; }
+</style>
+</head>
+<body class="locked">
+<div id="login">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <p class="brand-eyebrow">ODG Interiors — Internal</p>
+    <h1>Sourcing Library</h1>
+    <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+    <div class="login-error" id="loginError" role="alert"></div>
+    <button class="btn-primary" id="loginBtn" type="submit">Sign in</button>
+  </form>
+</div>
+<div class="app" id="app">
+  <div class="loading">Loading Library…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+//__FB_BEGIN__
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYlEdwKhjK9gL-nt1Uh34hMpzZakzYug0",
+  authDomain: "sourcing-library.firebaseapp.com",
+  projectId: "sourcing-library",
+  storageBucket: "sourcing-library.firebasestorage.app",
+  messagingSenderId: "377707558894",
+  appId: "1:377707558894:web:7dc74b0236cc843046c0ff"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+const AUTH = {
+  signIn: (email, password) => signInWithEmailAndPassword(auth, email, password),
+  signOut: () => signOut(auth),
+  onChange: cb => onAuthStateChanged(auth, cb)
+};
+
+// The library is stored as one document per category (collection "categories"),
+// plus one document per waiting submission (collection "pending").
+const DB = (() => {
+  const slug = n => (n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'category');
+  const ids = {};
+  const taken = new Set();
+  function docIdFor(name){
+    if (ids[name]) return ids[name];
+    const base = slug(name);
+    let id = base, k = 1;
+    while (taken.has(id)){ k++; id = base + '-' + k; }
+    ids[name] = id; taken.add(id);
+    return id;
+  }
+  return {
+    async loadAll(){
+      const snap = await getDocs(collection(db, 'categories'));
+      const resources = {};
+      snap.forEach(d => {
+        const v = d.data();
+        if (!v.name) return;
+        ids[v.name] = d.id; taken.add(d.id);
+        resources[v.name] = Array.isArray(v.items) ? v.items : [];
+      });
+      const ps = await getDocs(collection(db, 'pending'));
+      const pending = [];
+      ps.forEach(d => pending.push(Object.assign({}, d.data(), { id: d.id })));
+      pending.sort((x, y) => String(x.submittedAt || '').localeCompare(String(y.submittedAt || '')));
+      return { resources, pending };
+    },
+    // Reads the latest saved copy of one category, applies fn to its list, saves it back.
+    async mutateCategory(name, fn){
+      const ref = doc(db, 'categories', docIdFor(name));
+      return await runTransaction(db, async tx => {
+        const snap = await tx.get(ref);
+        const items = snap.exists() && Array.isArray(snap.data().items) ? snap.data().items : [];
+        const next = fn(items);
+        tx.set(ref, { name, items: next });
+        return next;
+      });
+    },
+    async importAll(resources){
+      const batch = writeBatch(db);
+      Object.keys(resources).forEach(name => {
+        batch.set(doc(db, 'categories', docIdFor(name)), { name, items: resources[name] });
+      });
+      await batch.commit();
+    },
+    async putPending(entry){ await setDoc(doc(db, 'pending', entry.id), entry); },
+    async delPending(id){ await deleteDoc(doc(db, 'pending', id)); }
+  };
+})();
+//__FB_END__
+
+(function(){
+
+  const CATEGORY_GROUPS = [
+    { label: 'Reference/Inspiration', categories: [
+      "OHARA'S SOURCES",'DESIGN LIBRARY','INSPIRATION','ODG PINTEREST'
+    ]},
+    { label: 'Construction', categories: [
+      'ANTIQUE ARCH ELEMENTS','APPLIANCES','CLOSET RODS & FOOTRAILS','FIREPLACES','FLOORING',
+      'HARDWARE','LIBRARY LADDERS','MISC SOURCING','PLUMBING','REGISTERS','SAFES',
+      'SAUNA / STEAM ROOMS / WELLNESS','STONE','TILE','WINDOWS AND DOORS'
+    ]},
+    { label: 'FF+E', categories: [
+      'DECORATIVE LIGHTING','TABLE LAMPS','OUTDOOR','FURNITURE','ANTIQUES',
+      'ACCESSORIES / ART','UPHOLSTERY','CASEGOODS',
+      'AREA RUGS',
+      'PING PONG','CUSTOM VENDORS'
+    ]},
+    { label: 'Turn-Key', categories: [
+      'KITCHEN','BAR','DINING ROOM','LIVING ROOM',
+      'BOOK SHELVES','BEDROOMS','OFFICE / DESK AREA',
+      'CLOSETS','BATHROOMS','MISC. ACCESSORIES',
+      'TURNKEY - OUTDOOR','THEATER','OUTDOOR SPA / POOL',
+      "NURSERY / BABY'S ROOM",'PETS','PILLOWS','PLANTS AND PLANTERS','ACCESSORIES'
+    ]}
+  ];
+  // Any category present in data but not listed above still shows up, appended to Reference/Inspiration.
+  function categoryGroupFor(cat){
+    for (const g of CATEGORY_GROUPS){ if (g.categories.includes(cat)) return g.label; }
+    return 'Reference/Inspiration';
+  }
+
+  let state = {
+    resources: {},
+    pending: [],
+    view: 'resources',
+    selectedCategory: null,
+    selectedSubcat: null,
+    selectedTier: null,
+    expandedSubs: {},
+    query: '',
+    modalOpen: false,
+    expandedGroups: {},
+    expandedCats: {},
+    highlightId: null,
+    edits: {},
+    added: [],
+    original: {}
+  };
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function makeId(cat, item, taken){
+    let h = 0x811c9dc5;
+    const str = `${cat}|${item.url}|${item.name}`;
+    for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    const base = 'i' + h.toString(16).padStart(8, '0');
+    let id = base, k = 1;
+    while (taken.has(id)){ k++; id = `${base}_${k}`; }
+    return id;
+  }
+
+  // The library lives in Firebase. Nothing is loaded until someone has signed in.
+  async function loadData(){
+    const app = document.getElementById('app');
+    app.innerHTML = '<div class="loading">Loading Library…</div>';
+    let data;
+    try{
+      data = await DB.loadAll();
+    } catch(e){
+      console.error(e);
+      const denied = e && (e.code === 'permission-denied' || /permission/i.test(String(e.message)));
+      app.innerHTML = `<div class="loading">${denied
+        ? "You're signed in, but this account doesn't have access to the library."
+        : "Couldn't load the library. Check your connection and refresh."}</div>`;
+      return;
+    }
+    if (!Object.keys(data.resources).length){ showImporter(data.pending); return; }
+    state.resources = data.resources;
+    const taken = new Set();
+    for (const cat of Object.keys(state.resources)){
+      for (const it of state.resources[cat]){
+        if (!it.id) it.id = makeId(cat, it, taken);
+        taken.add(it.id);
+      }
+    }
+    state.pending = data.pending;
+    const firstCat = Object.keys(state.resources)[0];
+    state.selectedCategory = firstCat || null;
+    if (firstCat) state.expandedGroups[categoryGroupFor(firstCat)] = true;
+    render();
+  }
+
+  // Wraps a save: shows a message and returns false if it didn't go through.
+  async function saving(fn){
+    try{ await fn(); return true; }
+    catch(e){ console.error(e); showToast('Could not save. Please try again.'); return false; }
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(()=> t.classList.remove('show'), 2600);
+  }
+
+  function allCategoryNames(){
+    const known = CATEGORY_GROUPS.flatMap(g => g.categories).filter(c => c in state.resources);
+    const extra = Object.keys(state.resources).filter(c => !known.includes(c));
+    return known.concat(extra);
+  }
+
+  const OHARA_CAT = "OHARA'S SOURCES";
+
+  function byCatName(a, b){ return a.localeCompare(b, 'en', { sensitivity: 'base' }); }
+
+  // Subcategories are alphabetical everywhere. Price tiers (inside Hardware) run Low -> High.
+  const SUBCAT_ORDER = [];
+  const TIER_ORDER = ['Low','Low to Mid','Mid','Mid to High','High'];
+  function subcatRank(k){ const i = SUBCAT_ORDER.indexOf(k); return i < 0 ? 100 : i; }
+  function bySubcat(a, b){
+    return (subcatRank(a) - subcatRank(b)) || a.localeCompare(b, 'en', { sensitivity: 'base' });
+  }
+
+  // Alphabetical order by the name as shown on the card (ignores case, accents,
+  // leading punctuation, and HTML entities like &amp;).
+  function plainName(n){
+    const t = (n || '').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
+    const stripped = t.replace(/^[^A-Za-z0-9\u00C0-\u024F]+/, '');
+    return stripped || t;
+  }
+  function byName(a, b){
+    return plainName(a.name).localeCompare(plainName(b.name), 'en', { sensitivity: 'base', numeric: true });
+  }
+
+  // Vendor name used for ordering. Uses the stored vendor; for links added without one,
+  // falls back to the website name. A leading "The" is ignored (The Future Perfect -> F).
+  function vendorOf(item){
+    if (item.vendor) return item.vendor;
+    try {
+      const host = new URL(item.url).hostname.replace(/^www\./, '');
+      const parts = host.split('.');
+      const label = (parts.length > 2 && ['co','com','org'].includes(parts[parts.length - 2])) ? parts[parts.length - 3] : parts[parts.length - 2];
+      if (label) return label.replace(/[-_]+/g, ' ');
+    } catch(e){}
+    return item.name || '';
+  }
+  function vendorSortKey(item){
+    return plainName(vendorOf(item)).replace(/^the\s+/i, '');
+  }
+  function byVendor(a, b){
+    const c = vendorSortKey(a).localeCompare(vendorSortKey(b), 'en', { sensitivity: 'base', numeric: true });
+    return c !== 0 ? c : byName(a, b);
+  }
+
+  // Every item flagged ohara:true, merged by link so a source that sits in several
+  // categories appears once, with all of its categories listed.
+  function oharaEntries(){
+    const byKey = new Map();
+    for (const cat of Object.keys(state.resources)){
+      if (cat === OHARA_CAT) continue;
+      for (const item of state.resources[cat]){
+        if (!item.ohara) continue;
+        // item.ohara is true, or {name, url} = the source exactly as Ohara sent it
+        const src = (item.ohara && item.ohara.url) ? item.ohara : { name: item.name, url: item.url };
+        const key = (src.url || src.name || '').trim().toLowerCase().replace(/\/+$/, '');
+        const label = item.subcat ? `${cat} › ${item.subcat}` : cat;
+        if (!byKey.has(key)){
+          byKey.set(key, { name: src.name, url: src.url, vendor: src.name, ohara: true, __cats: [label], __refs: [{ label, cat, id: item.id }] });
+        } else {
+          const e = byKey.get(key);
+          if (!e.__cats.includes(label)){ e.__cats.push(label); e.__refs.push({ label, cat, id: item.id }); }
+        }
+      }
+    }
+    return Array.from(byKey.values()).sort(byVendor);
+  }
+
+  function catCount(name){
+    return name === OHARA_CAT ? oharaEntries().length : state.resources[name].length;
+  }
+
+  function catLabel(name){
+    return name === OHARA_CAT ? '★ ' + name : name;
+  }
+
+  function groupedCatOptionsHtml(){
+    return CATEGORY_GROUPS.map(g => {
+      const cats = g.categories.filter(c => c in state.resources && c !== OHARA_CAT).sort(byCatName);
+      if (!cats.length) return '';
+      const opts = cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      return `<optgroup label="${escapeHtml(g.label)}">${opts}</optgroup>`;
+    }).join('');
+  }
+
+  function matchesQuery(item, q){
+    if(!q) return true;
+    q = q.toLowerCase();
+    return (item.name||'').toLowerCase().includes(q) || (item.url||'').toLowerCase().includes(q);
+  }
+
+  function subcatsOf(catName){
+    if (catName === OHARA_CAT){
+      const cats = new Set();
+      oharaEntries().forEach(e => e.__refs.forEach(r => cats.add(r.cat)));
+      return Array.from(cats).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+    }
+    const items = state.resources[catName] || [];
+    const order = [];
+    items.forEach(i => { if (i.subcat && !order.includes(i.subcat)) order.push(i.subcat); });
+    return order.sort(bySubcat);
+  }
+
+  function tiersOf(catName, subcat){
+    const set = [];
+    (state.resources[catName] || []).forEach(i => {
+      if (i.subcat === subcat && i.tier && !set.includes(i.tier)) set.push(i.tier);
+    });
+    const rank = k => { const n = TIER_ORDER.indexOf(k); return n < 0 ? 100 : n; };
+    return set.sort((a, b) => (rank(a) - rank(b)) || a.localeCompare(b, 'en', { sensitivity: 'base' }));
+  }
+
+  function currentItems(){
+    const q = state.query.trim();
+    if (q){
+      const src = state.resources;
+      let out = [];
+      for (const cat of Object.keys(src)){
+        for (const item of src[cat]){
+          if (matchesQuery(item, q)) out.push(Object.assign({}, item, {__cat: cat}));
+        }
+      }
+      return out;
+    }
+    if (state.selectedCategory === OHARA_CAT){
+      const all = oharaEntries();
+      return state.selectedSubcat ? all.filter(e => e.__refs.some(r => r.cat === state.selectedSubcat)) : all;
+    }
+    return (state.resources[state.selectedCategory]||[])
+      .filter(i => !state.selectedSubcat || i.subcat === state.selectedSubcat)
+      .filter(i => !state.selectedTier || i.tier === state.selectedTier)
+      .map(i => Object.assign({}, i, {__cat: state.selectedCategory}))
+      .sort(byVendor);
+  }
+
+  function render(){
+    const app = document.getElementById('app');
+    const totalResources = Object.values(state.resources).reduce((a,b)=>a+b.length,0);
+
+    const groupSections = CATEGORY_GROUPS.map(g => {
+      const cats = g.categories.filter(c => c in state.resources).sort(byCatName);
+      if (!cats.length) return '';
+      const expanded = !!state.expandedGroups[g.label];
+      const tabs = cats.map(name => {
+        const count = catCount(name);
+        const subcats = subcatsOf(name);
+        const isActiveCat = state.view==='resources' && state.selectedCategory===name && !state.query;
+        const sel = isActiveCat && !state.selectedSubcat;
+        const catExpanded = !!state.expandedCats[name];
+        if (!subcats.length){
+          return `<li class="tab ${sel?'selected':''}" data-view="resources" data-cat="${escapeHtml(name)}">
+                    <span>${escapeHtml(catLabel(name))}</span><span class="count">${count}</span></li>`;
+        }
+        const subTabs = subcats.map(sc => {
+          const scCount = name === OHARA_CAT
+            ? oharaEntries().filter(e => e.__refs.some(r => r.cat === sc)).length
+            : state.resources[name].filter(i => i.subcat === sc).length;
+          const tiers = name === OHARA_CAT ? [] : tiersOf(name, sc);
+          const scSel = isActiveCat && state.selectedSubcat === sc && !state.selectedTier;
+          if (!tiers.length){
+            return `<li class="tab subtab ${scSel?'selected':''}" data-view="resources" data-cat="${escapeHtml(name)}" data-subcat="${escapeHtml(sc)}">
+                    <span>${escapeHtml(sc)}</span><span class="count">${scCount}</span></li>`;
+          }
+          const subOpen = !!state.expandedSubs[name + '|' + sc];
+          const tierTabs = tiers.map(t => {
+            const tCount = state.resources[name].filter(i => i.subcat === sc && i.tier === t).length;
+            const tSel = isActiveCat && state.selectedSubcat === sc && state.selectedTier === t;
+            return `<li class="tab subtab tiertab ${tSel?'selected':''}" data-view="resources" data-cat="${escapeHtml(name)}" data-subcat="${escapeHtml(sc)}" data-tier="${escapeHtml(t)}">
+                      <span>${escapeHtml(t)}</span><span class="count">${tCount}</span></li>`;
+          }).join('');
+          return `<li class="tab subtab sub-with-tiers ${scSel?'selected':''} ${subOpen?'expanded':''}" data-view="resources" data-cat="${escapeHtml(name)}" data-subcat="${escapeHtml(sc)}">
+                    <span><span class="chevron small">▶</span> ${escapeHtml(sc)}</span><span class="count">${scCount}</span></li>
+                  ${subOpen ? `<ul class="tab-list tier-list">${tierTabs}</ul>` : ''}`;
+        }).join('');
+        return `<li class="tab cat-with-subs ${sel?'selected':''} ${catExpanded?'expanded':''}" data-view="resources" data-cat="${escapeHtml(name)}">
+                  <span><span class="chevron small">▶</span> ${escapeHtml(catLabel(name))}</span><span class="count">${count}</span></li>
+                ${catExpanded ? `<ul class="tab-list subtab-list">${subTabs}</ul>` : ''}`;
+      }).join('');
+      const groupTotal = cats.reduce((a,c)=>a+catCount(c),0);
+      return `<div class="drawer-section-label group-header ${expanded?'expanded':''}" data-group="${escapeHtml(g.label)}">
+                <span><span class="chevron">▶</span> ${escapeHtml(g.label)} (${groupTotal})</span>
+              </div>
+              ${expanded ? `<ul class="tab-list">${tabs}</ul>` : ''}`;
+    }).join('');
+
+    const pendingSel = state.view === 'pending';
+
+    let mainHtml = '';
+    if (state.query.trim()){
+      const items = currentItems();
+      mainHtml = `
+        <div class="panel-head">
+          <div class="panel-title">Search Results</div>
+          <div class="panel-sub">${items.length} match${items.length===1?'':'es'} — "${escapeHtml(state.query)}"</div>
+        </div>
+        ${renderGrid(items, true)}`;
+    } else if (state.view === 'pending'){
+      mainHtml = renderPending();
+    } else {
+      const items = currentItems();
+      const label = state.selectedCategory
+        ? (state.selectedSubcat ? `${catLabel(state.selectedCategory)} — ${state.selectedSubcat}${state.selectedTier ? ' — ' + state.selectedTier : ''}` : catLabel(state.selectedCategory))
+        : 'Select a category';
+      mainHtml = `
+        <div class="panel-head">
+          <div class="panel-title">${escapeHtml(label)}</div>
+          <div class="panel-sub">${items.length} resource${items.length===1?'':'s'}</div>
+        </div>
+        ${state.selectedCategory === OHARA_CAT ? `<p class="panel-note"><strong>Note:</strong> Each card here is one source Ohara sent, with the categories it's filed under shown as tags. Open ★ Ohara's Sources in the menu to filter by category, or click a tag to jump to that entry in its category. These cards can't be edited here. To change the title or link of one of its entries, open that entry in its own category (look for the ★) and click the ✎ on that card.</p>` : ''}
+        ${renderGrid(items, false)}`;
+    }
+
+    app.innerHTML = `
+      <header class="top">
+        <div>
+          <p class="brand-eyebrow">ODG Interiors — Internal · Secure build 1 · ${totalResources} links</p>
+          <h1>Sourcing Library</h1>
+        </div>
+        <div class="top-right">
+          <div class="search-wrap">
+            <input id="searchInput" type="text" placeholder="Search vendors, links…" value="${escapeHtml(state.query)}">
+          </div>
+          <button class="btn-primary" id="addBtn">+ Add Resource</button>
+          <button class="btn-ghost" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </header>
+      <div class="layout">
+        <nav class="drawer">
+          <div class="drawer-section-label">Sourcing Library (${totalResources})</div>
+          ${groupSections}
+          <div class="drawer-section-label">&nbsp;</div>
+          <ul class="tab-list">
+            <li class="tab pending ${pendingSel?'selected':''}" data-view="pending">
+              <span>Pending Review</span><span class="count">${state.pending.length}</span>
+            </li>
+          </ul>
+          <p class="note">Anyone can add a link. New links land in <strong>Pending Review</strong> until filed into a category — everyone can file or discard them.</p>
+        </nav>
+        <main>${mainHtml}</main>
+      </div>
+      <div class="footer-sig">ODG Interiors · Internal Sourcing Reference</div>
+    `;
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      state.query = e.target.value;
+      render();
+      const el = document.getElementById('searchInput');
+      el.focus();
+      el.selectionStart = el.selectionEnd = el.value.length;
+    });
+    document.getElementById('addBtn').addEventListener('click', openModal);
+    document.getElementById('signOutBtn').addEventListener('click', () => AUTH.signOut());
+    app.querySelectorAll('.chip-link').forEach(b => {
+      b.addEventListener('click', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        const cat = b.dataset.gotoCat;
+        state.query = '';
+        state.view = 'resources';
+        state.selectedCategory = cat;
+        state.selectedSubcat = null;
+        state.selectedTier = null;
+        state.expandedGroups[categoryGroupFor(cat)] = true;
+        state.highlightId = b.dataset.gotoId || null;
+        render();
+      });
+    });
+    app.querySelectorAll('.edit-btn[data-edit]').forEach(b => {
+      b.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); openEditModal(b.dataset.edit); });
+    });
+
+    app.querySelectorAll('.tab[data-view]').forEach(el => {
+      el.addEventListener('click', () => {
+        state.query = '';
+        state.view = el.dataset.view;
+        if (el.dataset.tier){
+          state.selectedCategory = el.dataset.cat;
+          state.selectedSubcat = el.dataset.subcat;
+          state.selectedTier = el.dataset.tier;
+        } else if (el.dataset.subcat){
+          state.selectedCategory = el.dataset.cat;
+          state.selectedSubcat = el.dataset.subcat;
+          state.selectedTier = null;
+          if (el.classList.contains('sub-with-tiers')){
+            const k = el.dataset.cat + '|' + el.dataset.subcat;
+            state.expandedSubs[k] = !state.expandedSubs[k];
+          }
+        } else if (el.dataset.cat){
+          state.selectedCategory = el.dataset.cat;
+          state.selectedSubcat = null;
+          state.selectedTier = null;
+          if (el.classList.contains('cat-with-subs')){
+            state.expandedCats[el.dataset.cat] = !state.expandedCats[el.dataset.cat];
+          }
+        }
+        render();
+      });
+    });
+
+    app.querySelectorAll('.group-header[data-group]').forEach(el => {
+      el.addEventListener('click', () => {
+        const g = el.dataset.group;
+        state.expandedGroups[g] = !state.expandedGroups[g];
+        render();
+      });
+    });
+
+    if (state.view === 'pending'){
+      wirePendingActions();
+    }
+
+    if (state.highlightId){
+      const el = app.querySelector(`.card[data-id="${state.highlightId}"]`);
+      state.highlightId = null;
+      if (el){
+        el.classList.add('flash');
+        if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => el.classList.remove('flash'), 2800);
+      }
+    }
+  }
+
+  function renderCard(item, showCatTag){
+    const star = item.ohara ? `<span class="ohara-star" title="Ohara's source">★</span>` : '';
+    const editBtn = item.id ? `<button type="button" class="edit-btn" data-edit="${escapeHtml(item.id)}" title="Edit title or link" aria-label="Edit title or link">✎</button>` : '';
+    const chips = item.__refs
+      ? `<div class="cat-chips">${item.__refs.map(r => `<button type="button" class="chip chip-link" data-goto-cat="${escapeHtml(r.cat)}" data-goto-id="${escapeHtml(r.id || '')}" title="Go to this entry in ${escapeHtml(r.cat)}">${escapeHtml(r.label)}</button>`).join('')}</div>`
+      : (item.__cats ? `<div class="cat-chips">${item.__cats.map(c => `<span class="chip">${escapeHtml(c)}</span>`).join('')}</div>` : '');
+    if (!item.url){
+      return `<div class="card"${item.id ? ` data-id="${escapeHtml(item.id)}"` : ''}>
+        ${showCatTag ? `<span class="cat-tag">${escapeHtml(item.__cat||'')}</span>` : ''}
+        ${editBtn}
+        <span class="name" style="cursor:default;">${star}${escapeHtml(item.name)}</span>
+        ${chips}
+      </div>`;
+    }
+    let host = '';
+    try{ host = new URL(item.url).hostname.replace('www.',''); } catch(e){ host = item.url; }
+    return `<div class="card"${item.id ? ` data-id="${escapeHtml(item.id)}"` : ''}>
+      ${editBtn}
+      ${showCatTag ? `<span class="cat-tag">${escapeHtml(item.__cat||'')}</span>` : ''}
+      <a class="name" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${star}${escapeHtml(item.name)}</a>
+      <span class="url">${escapeHtml(host)}</span>
+      ${chips}
+      <a class="visit" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">Open Link →</a>
+    </div>`;
+  }
+
+  function renderGrid(items, showCatTag){
+    if (!items.length){
+      return `<div class="empty">Nothing here yet.</div>`;
+    }
+    const hasSubcats = items.some(i => i.subcat);
+    if (!hasSubcats){
+      return `<div class="grid">${items.map(item => renderCard(item, showCatTag)).join('')}</div>`;
+    }
+    // Group by subcategory, preserving first-seen order. Items with no subcat render first, unlabeled.
+    const order = [];
+    const buckets = {};
+    items.forEach(item => {
+      const key = item.subcat || '';
+      if (!(key in buckets)){ buckets[key] = []; order.push(key); }
+      buckets[key].push(item);
+    });
+    order.sort((a, b) => (a === '' ? -1 : b === '' ? 1 : bySubcat(a, b)));
+    return order.map(key => {
+      const groupItems = buckets[key];
+      const heading = key ? `<div class="subcat-heading">${escapeHtml(key)} (${groupItems.length})</div>` : '';
+      return `<div class="subcat-block">${heading}${renderTierGroups(groupItems, showCatTag)}</div>`;
+    }).join('');
+  }
+
+  // Inside a subcategory, items carrying a price tier are grouped Low -> High.
+  function renderTierGroups(groupItems, showCatTag){
+    if (!groupItems.some(i => i.tier)){
+      return `<div class="grid">${groupItems.map(item => renderCard(item, showCatTag)).join('')}</div>`;
+    }
+    const keys = [];
+    const by = {};
+    groupItems.forEach(item => {
+      const k = item.tier || '';
+      if (!(k in by)){ by[k] = []; keys.push(k); }
+      by[k].push(item);
+    });
+    const rank = k => { const n = TIER_ORDER.indexOf(k); return n < 0 ? 100 : n; };
+    keys.sort((a, b) => (a === '' ? -1 : b === '' ? 1 : (rank(a) - rank(b)) || a.localeCompare(b, 'en', { sensitivity: 'base' })));
+    return keys.map(k => `
+      <div class="tier-block">
+        ${k ? `<div class="tier-heading">${escapeHtml(k)} (${by[k].length})</div>` : ''}
+        <div class="grid">${by[k].map(item => renderCard(item, showCatTag)).join('')}</div>
+      </div>`).join('');
+  }
+
+  function renderPending(){
+    if (!state.pending.length){
+      return `<div class="panel-head"><div class="panel-title">Pending Review</div></div>
+              <div class="empty">Nothing waiting to be filed. New submissions show up here.</div>`;
+    }
+    const catOptions = groupedCatOptionsHtml();
+    return `
+      <div class="panel-head">
+        <div class="panel-title">Pending Review</div>
+        <div class="panel-sub">${state.pending.length} awaiting filing</div>
+      </div>
+      ${state.pending.map(p => `
+        <div class="pending-row" data-id="${p.id}">
+          <div class="pending-info">
+            <div class="n">${escapeHtml(p.name)}</div>
+            <div class="u">${escapeHtml(p.url)}</div>
+            <div class="meta">Submitted ${escapeHtml(p.submittedAt||'')}${p.suggestedCategory ? ' · Suggested: ' + escapeHtml(p.suggestedCategory) : ''}</div>
+          </div>
+          <div class="pending-actions">
+            <select class="file-select">
+              <option value="">File into…</option>
+              ${catOptions}
+            </select>
+            <button class="file-btn" data-action="file">File</button>
+            <button class="discard-btn" data-action="discard">Discard</button>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function wirePendingActions(){
+    document.querySelectorAll('.pending-row').forEach(row => {
+      const id = row.dataset.id;
+      row.querySelector('[data-action="file"]').addEventListener('click', async () => {
+        const sel = row.querySelector('.file-select');
+        const cat = sel.value;
+        if (!cat){ showToast('Choose a category first.'); return; }
+        const item = state.pending.find(p => p.id === id);
+        if (!item) return;
+        const filed = { id: 'u_' + id, name: item.name, url: item.url };
+        const ok = await saving(async () => {
+          state.resources[cat] = await DB.mutateCategory(cat, items => items.some(x => x.id === filed.id) ? items : items.concat([filed]));
+          await DB.delPending(id);
+          state.pending = state.pending.filter(p => p.id !== id);
+        });
+        if (!ok) return;
+        showToast(`Filed into ${cat}`);
+        render();
+      });
+      row.querySelector('[data-action="discard"]').addEventListener('click', async () => {
+        const ok = await saving(async () => {
+          await DB.delPending(id);
+          state.pending = state.pending.filter(p => p.id !== id);
+        });
+        if (!ok) return;
+        showToast('Discarded.');
+        render();
+      });
+    });
+  }
+
+  function findItemById(id){
+    for (const cat of Object.keys(state.resources)){
+      const item = state.resources[cat].find(x => x.id === id);
+      if (item) return { cat, item };
+    }
+    return null;
+  }
+
+  // Applies edits to the saved library. Each change is {cat, id, patch} or {cat, id, reset:true}.
+  // The first time an entry is edited it remembers its original title/link/vendor.
+  async function applyEdits(changes){
+    const byCat = {};
+    changes.forEach(c => { (byCat[c.cat] = byCat[c.cat] || []).push(c); });
+    for (const cat of Object.keys(byCat)){
+      const list = byCat[cat];
+      state.resources[cat] = await DB.mutateCategory(cat, items => items.map(it => {
+        const ch = list.find(c => c.id === it.id);
+        if (!ch) return it;
+        const n = Object.assign({}, it);
+        if (ch.reset){
+          if (n.orig){
+            n.name = n.orig.name; n.url = n.orig.url;
+            if (n.orig.vendor) n.vendor = n.orig.vendor; else delete n.vendor;
+            delete n.orig;
+          }
+          return n;
+        }
+        if (!n.orig) n.orig = { name: n.name, url: n.url, vendor: n.vendor || '' };
+        if ('name' in ch.patch) n.name = ch.patch.name;
+        if ('url' in ch.patch) n.url = ch.patch.url;
+        if ('vendor' in ch.patch){ if (ch.patch.vendor) n.vendor = ch.patch.vendor; else delete n.vendor; }
+        if (n.name === n.orig.name && n.url === n.orig.url && (n.vendor || '') === (n.orig.vendor || '')) delete n.orig;
+        return n;
+      }));
+    }
+  }
+
+  function openEditModal(id){
+    const found = findItemById(id);
+    if (!found) return;
+    const it = found.item;
+    const sameLink = [];
+    for (const cat of Object.keys(state.resources)){
+      for (const x of state.resources[cat]){
+        if (x.id !== id && x.url && x.url === it.url) sameLink.push(cat);
+      }
+    }
+    const sameCats = Array.from(new Set(sameLink));
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'modalOverlay';
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2>Edit Entry</h2>
+        <p class="hint">${escapeHtml(found.cat)}. Saved for everyone.</p>
+        <div class="field"><label for="e-name">Title</label><input id="e-name" type="text"></div>
+        <div class="field"><label for="e-url">Link</label><input id="e-url" type="text"></div>
+        <div class="field"><label for="e-vendor">Vendor (sets the A–Z order)</label><input id="e-vendor" type="text"></div>
+        ${sameLink.length ? `<label class="check-row"><input type="checkbox" id="e-same" checked><span>If the link changes, also update the ${sameLink.length} other ${sameLink.length === 1 ? 'entry' : 'entries'} using the same link (${escapeHtml(sameCats.join(', '))})</span></label>` : ''}
+        <div class="modal-actions">
+          ${it.orig ? '<button class="btn-ghost" id="e-reset" type="button">Reset to original</button>' : ''}
+          <button class="btn-ghost" id="e-cancel" type="button">Cancel</button>
+          <button class="btn-primary" id="e-save" type="button">Save</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('e-name').value = it.name || '';
+    document.getElementById('e-url').value = it.url || '';
+    document.getElementById('e-vendor').value = vendorOf(it) || '';
+    document.getElementById('e-name').focus();
+    document.getElementById('e-cancel').addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.getElementById('e-save').addEventListener('click', () => saveEdit(id));
+    const rb = document.getElementById('e-reset');
+    if (rb) rb.addEventListener('click', () => resetEdit(id));
+  }
+
+  async function saveEdit(id){
+    const found = findItemById(id);
+    if (!found) return;
+    const name = document.getElementById('e-name').value.trim();
+    let url = document.getElementById('e-url').value.trim();
+    const vendor = document.getElementById('e-vendor').value.trim();
+    if (!name || !url){ showToast('Title and link are both required.'); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const it = found.item;
+    const oldUrl = it.url;
+    const same = document.getElementById('e-same');
+    const changes = [{ cat: found.cat, id, patch: { name, url, vendor } }];
+    if (same && same.checked && url !== oldUrl){
+      for (const cat of Object.keys(state.resources)){
+        for (const x of state.resources[cat]){
+          if (x.id !== id && x.url === oldUrl) changes.push({ cat, id: x.id, patch: { url } });
+        }
+      }
+    }
+    const ok = await saving(() => applyEdits(changes));
+    if (!ok) return;
+    closeModal();
+    const more = changes.length - 1;
+    showToast(more ? `Saved (and updated ${more} more with the same link).` : 'Saved.');
+    render();
+  }
+
+  async function resetEdit(id){
+    const found = findItemById(id);
+    if (!found) return;
+    const ok = await saving(() => applyEdits([{ cat: found.cat, id, reset: true }]));
+    if (!ok) return;
+    closeModal();
+    showToast('Reset to the original.');
+    render();
+  }
+
+    function openModal(){
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'modalOverlay';
+    const catOptions = groupedCatOptionsHtml();
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2>Add a Resource</h2>
+        <p class="hint">It'll land in Pending Review for anyone to file into a category.</p>
+        <div class="field">
+          <label for="f-name">Vendor / Page Name</label>
+          <input id="f-name" type="text" placeholder="e.g. Barlow Tyrie">
+        </div>
+        <div class="field">
+          <label for="f-url">Link</label>
+          <input id="f-url" type="text" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="f-cat">Suggested Category (optional)</label>
+          <select id="f-cat">
+            <option value="">— none —</option>
+            ${catOptions}
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost" id="cancelModal">Cancel</button>
+          <button class="btn-primary" id="submitModal">Add to Pending</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById('f-name').focus();
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.getElementById('submitModal').addEventListener('click', submitPending);
+  }
+  function closeModal(){
+    const o = document.getElementById('modalOverlay');
+    if (o) o.remove();
+  }
+  async function submitPending(){
+    const name = document.getElementById('f-name').value.trim();
+    let url = document.getElementById('f-url').value.trim();
+    const cat = document.getElementById('f-cat').value;
+    if (!name || !url){ showToast('Name and link are both required.'); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const entry = {
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name, url,
+      suggestedCategory: cat || null,
+      submittedAt: new Date().toISOString().slice(0,10)
+    };
+    const ok = await saving(async () => {
+      await DB.putPending(entry);
+      state.pending.push(entry);
+    });
+    if (!ok) return;
+    closeModal();
+    state.view = 'pending';
+    state.query = '';
+    showToast("Added — it's in Pending Review now.");
+    render();
+  }
+
+  // First-time setup: the database is empty, so ask for the library data file.
+  // The file stays on the person's computer; this page only reads it and saves it to the database.
+  function showImporter(){
+    const el = document.getElementById('app');
+    el.innerHTML = `<div class="import-wrap"><div class="login-card import-card">
+      <p class="brand-eyebrow">ODG Interiors — Internal</p>
+      <h1>Set up the library</h1>
+      <p class="import-text">The database is empty. Choose the library data file from your computer. It stays on your computer. This page only reads it and saves it into the database.</p>
+      <input type="file" id="importFile" accept=".json,application/json">
+      <div class="login-error" id="importMsg" role="status"></div>
+      <button class="btn-primary" id="importGo" type="button" disabled>Import the library</button>
+    </div></div>`;
+    const msg = document.getElementById('importMsg');
+    const go = document.getElementById('importGo');
+    let parsed = null;
+    document.getElementById('importFile').addEventListener('change', async ev => {
+      parsed = null; go.disabled = true; msg.style.color = ''; msg.textContent = '';
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      try{
+        const data = JSON.parse(await f.text());
+        const cats = Object.keys(data);
+        const valid = cats.length && cats.every(c => Array.isArray(data[c]) && data[c].every(it => it && typeof it.name === 'string' && typeof it.url === 'string'));
+        if (!valid) throw new Error('shape');
+        parsed = data;
+        const links = cats.reduce((a, c) => a + data[c].length, 0);
+        msg.style.color = 'var(--ink)';
+        msg.textContent = `Found ${cats.length} categories and ${links.toLocaleString()} links.`;
+        go.disabled = false;
+      } catch(e){
+        msg.textContent = "That doesn't look like the library data file.";
+      }
+    });
+    go.addEventListener('click', async () => {
+      go.disabled = true; msg.style.color = 'var(--ink)'; msg.textContent = 'Importing…';
+      const ok = await saving(() => DB.importAll(parsed));
+      if (ok) loadData();
+      else { msg.style.color = ''; msg.textContent = "The import didn't finish. Nothing was lost, so you can try again."; go.disabled = false; }
+    });
+  }
+
+  // ---- sign-in gate ----
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const loginBtn = document.getElementById('loginBtn');
+  loginForm.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    loginError.textContent = '';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in…';
+    try{
+      await AUTH.signIn(document.getElementById('l-email').value.trim(), document.getElementById('l-pass').value);
+    } catch(e){
+      const code = (e && e.code) || '';
+      loginError.textContent = code === 'auth/too-many-requests'
+        ? 'Too many attempts. Wait a few minutes and try again.'
+        : (code === 'auth/network-request-failed'
+          ? "Couldn't reach the sign-in service. Check your connection."
+          : "That email or password isn't right.");
+    }
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign in';
+  });
+
+  AUTH.onChange(user => {
+    if (user){
+      document.body.classList.remove('locked');
+      document.getElementById('l-pass').value = '';
+      loadData();
+    } else {
+      // signed out: clear everything that was on screen
+      state.resources = {};
+      state.pending = [];
+      document.getElementById('app').innerHTML = '';
+      document.body.classList.add('locked');
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
